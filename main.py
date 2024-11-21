@@ -9,6 +9,7 @@ import torch
 import time
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from flask_cors import CORS
 uri = "mongodb+srv://srimjhim700:6tcMo0mB0VCfdDS2@cluster0.2o0i5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 # password : 6tcMo0mB0VCfdDS2
 # Create a new client and connect to the server
@@ -18,7 +19,7 @@ collection = db["login"]
 status = db["status"]
 registeration = db["registeration_number"]
 app = Flask(__name__)
-
+CORS(app)
  
 # Load models globally
 sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
