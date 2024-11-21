@@ -7,9 +7,19 @@ import numpy as np
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 import time
-
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+uri = "mongodb+srv://srimjhim700:6tcMo0mB0VCfdDS2@cluster0.2o0i5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+# password : 6tcMo0mB0VCfdDS2
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi('1'))
+db = client["usercredentials"]
+collection = db["login"]
+status = db["status"]
+registeration = db["registeration_number"]
 app = Flask(__name__)
 
+ 
 # Load models globally
 sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
 model, tokenizer = None, None
@@ -57,7 +67,7 @@ def rag_query(query, index, sentences, model, tokenizer):
     relevant_text = ". ".join([sentences[i] for i in I[0]])
     input_text = f"Context: {relevant_text}\n\nQuery: {query}"
     inputs = tokenizer(input_text, max_length=96, return_tensors="pt")
-    outputs = model.generate(**inputs, max_length=96, num_beams=1)
+    outputs = model.generate(**inputs, max_length=100, num_beams=1)
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return response
 
@@ -80,6 +90,34 @@ def query_database():
     response = rag_query(query, index, sentences, model, tokenizer)
     return jsonify({"response": response})
 
+@app.route('/signup', methods = ['POST'])
+def signup():
+    username = request.json.get('username')
+    password = request.json.get('password')
+    result = collection.insert_one(request.json)
+    return jsonify({"message " : "data added successfully"}),200
+
+@app.route('/login',methods = ['POST'])
+def login():
+    username = request.json.get('username')
+    password = request.json.get('password')
+    data = collection.find_one({"username" : username})
+    if (data):
+        if(username == data["username"] and password == data["password"]):
+            temp = registeration.find({"username" : username})
+            temp = [x['registeration_number'] for x in temp]
+            return jsonify({"message " : str(temp)}),200
+        else: 
+            return jsonify({"message " : "bad credential"}),401
+    else:
+         return jsonify({"message " : "bad credential"}),401
+    
+@app.route('/get-status',methods = ['GET'])
+def get_status():
+    registeration_number = request.args.get('registeration_number')
+    print(registeration_number)
+    status_var = status.find_one({"registeration_number": str(registeration_number)})
+    return jsonify({"message" : str(status_var)})
 # Static PDF processing at startup
 def setup_pdf():
     global index, sentences
