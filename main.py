@@ -17,10 +17,7 @@ load_dotenv()
 uri = os.getenv("MONGO_URI")
 hf_token = os.getenv("HF_TOKEN")
 
-=======
-uri = "mongodb+srv://m700:6tcMo0mC0VCfdDSS2@cluster0.2o0i5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-# password : 6tcMo0mBMVCfdDS2
->>>>>>> 7a0d50b103afaf2c31721db62912dc4b4c2c02de
+
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
 db = client["usercredentials"]
@@ -151,10 +148,6 @@ def setup_pdf():
 
 if __name__ == "__main__":
     # Hugging Face token
-<<<<<<< HEAD
-=======
-    hf_token = "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"  # Replace with your Hugging Face token
->>>>>>> 7a0d50b103afaf2c31721db62912dc4b4c2c02de
     model, tokenizer = load_mistral(_token=hf_token)
     
     # Process the static PDF once on server start
